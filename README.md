@@ -6,6 +6,10 @@ Custom web server with python for Learning Purpose
 * There is no pip dependency
 
 ## Run
+* First make a directory called "data". Because in example POST request it store data in this directory
+    ```
+    mkdir data
+    ```
 * In Linux/MacOS
     ```
     python3 server.py <port>
