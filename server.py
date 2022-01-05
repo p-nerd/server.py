@@ -14,15 +14,14 @@ def handle_request(client: socket, client_address):
     request_headers = Headers(first_row[0], first_row[1])
 
     response = None
+
+    print(f"{request_headers.http_method}\t-> {client_address}",)
+
     if request_headers.http_method == "GET":
         response = sta.get(request_headers)
-
     elif request_headers.http_method == "POST":
         params_body: dict = to_params_dict(request)
         response = sta.post(request_headers, params_body)
-
-    print(f"{Headers.count_request}: {request_headers.http_method}", end="")
-    print(f"\t-> {client_address}")
 
     response_status = response[1] + "\n\n"
     response_body = json.dumps(response[0])
@@ -52,4 +51,4 @@ def server(host: str, port: int):
 
 
 if __name__ == "__main__":
-    server("192.168.0.4", int(sys.argv[1]))
+    server("127.0.0.1", int(sys.argv[1]))
