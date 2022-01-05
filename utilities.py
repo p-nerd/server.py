@@ -3,9 +3,12 @@ import os
 
 
 class Headers:
+    count_request = 0
+
     def __init__(self, http_method: str, path: str):
         self.http_method = http_method
         self.path = path
+        Headers.count_request += 1
 
 
 def to_params_dict(data: list) -> dict:

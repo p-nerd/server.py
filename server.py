@@ -1,12 +1,13 @@
-from utilities import Headers, to_params_dict
-import sta
 import json
 import os
 import socket
 import sys
 
+from utilities import Headers, to_params_dict
+import sta
 
-def handle_request(client: socket):
+
+def handle_request(client: socket, client_address):
     request: list[str] = client.recv(1024).decode("utf-8").split("\n")
 
     first_row: list[str] = request[0].split(" ")
@@ -20,6 +21,9 @@ def handle_request(client: socket):
         params_body: dict = to_params_dict(request)
         response = sta.post(request_headers, params_body)
 
+    print(f"{Headers.count_request}: {request_headers.http_method}", end="")
+    print(f"\t-> {client_address}")
+
     response_status = response[1] + "\n\n"
     response_body = json.dumps(response[0])
     final_response = "HTTP/1.1 " + response_status + response_body
@@ -28,7 +32,6 @@ def handle_request(client: socket):
 
 
 def server(host: str, port: int):
-    count_request = 0
     server_address = host, port
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,13 +41,10 @@ def server(host: str, port: int):
 
     while True:
         client_socket, client_address = server_socket.accept()
-        count_request += 1
-        print(f"{count_request}: -> {client_address}")
-
         pid = os.fork()
         if pid == 0:
             server_socket.close()
-            handle_request(client_socket)
+            handle_request(client_socket, client_address)
             client_socket.close()
             os._exit(os.EX_OK)
         else:
@@ -52,4 +52,4 @@ def server(host: str, port: int):
 
 
 if __name__ == "__main__":
-    server("127.0.0.1", int(sys.argv[1]))
+    server("192.168.0.4", int(sys.argv[1]))

@@ -2,7 +2,6 @@ from utilities import Headers
 
 
 def get(header: Headers):
-
     data = {
         "title": "server.py",
         "programmer": "Shihab Mahamud",
