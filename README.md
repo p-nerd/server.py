@@ -13,7 +13,7 @@ Custom web server with python for Learning Purpose
     ```
     python3 server.py 5000 # example
     ```
-* In Windows
+* In Windows (Note: Windows not tested)
     ```
     python server.py <port>
     ```
