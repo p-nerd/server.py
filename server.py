@@ -1,26 +1,33 @@
-from classes import Request
-import socket
-import os
-import sys
-import api
+from utilities import Headers, to_params_dict
+import sta
 import json
+import os
+import socket
+import sys
 
 
-HTTP_HEADER = b"HTTP/1.1 200 OK\n\n"
+def handle_request(client: socket):
+    request: list[str] = client.recv(1024).decode("utf-8").split("\n")
+
+    first_row: list[str] = request[0].split(" ")
+    request_headers = Headers(first_row[0], first_row[1])
+
+    response = None
+    if request_headers.http_method == "GET":
+        response = sta.get(request_headers)
+
+    elif request_headers.http_method == "POST":
+        params_body: dict = to_params_dict(request)
+        response = sta.post(request_headers, params_body)
+
+    response_status = response[1] + "\n\n"
+    response_body = json.dumps(response[0])
+    final_response = "HTTP/1.1 " + response_status + response_body
+
+    client.sendall(bytes(final_response, encoding="utf-8"))
 
 
-def handle_request(client: socket) -> None:
-    request_header: list[str] = client.recv(1024).decode("utf-8").split("\n")
-
-    http_method, path, request_type = request_header[0].split(" ")
-
-    if request_type[:4] == "HTTP":
-        print("Got HTTP request!")
-        data = json.dumps(api.main(Request(http_method, path)))
-        client.sendall(HTTP_HEADER + bytes(data, encoding="utf-8"))
-
-
-def server(host: str, port: int) -> None:
+def server(host: str, port: int):
     count_request = 0
     server_address = host, port
 
